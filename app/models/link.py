@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 
-from sqlalchemy import Boolean, DateTime, String, Text
+from sqlalchemy import Boolean, DateTime, String, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -15,3 +15,12 @@ class Link(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+    __table_args__ = (
+        Index(
+            "uq_active_original_url",
+            "original_url",
+            unique=True,
+            postgresql_where=(is_active.is_(True)),
+        ),
+    )
