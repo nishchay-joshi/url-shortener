@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.schemas.link import CreateLinkRequest, LinkResponse
 from app.services.link_service import create_link, resolve_link
+from app.core.redis_client import redis_client
 
 
 router = APIRouter()
@@ -33,7 +34,7 @@ async def create_short_link(link_data: CreateLinkRequest, db: AsyncSession = Dep
 
 @redirect_router.get("/{short_code}")
 async def redirect_to_original_url(short_code: str, db: AsyncSession = Depends(get_db)):
-    link = await resolve_link(short_code=short_code, db=db)
+    link = await resolve_link(short_code=short_code, db=db, redis=redis_client)
 
     if link is None:
         raise HTTPException(
